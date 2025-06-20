@@ -25,7 +25,7 @@ subprojects {
 
     plugins.withType(JavaPlugin) {
         tasks.withType(JavaCompile).configureEach {
-            options.compilerArgs += ["-Xlint:-options"]
+            // options.compilerArgs += ["-Xlint:-options"]
             sourceCompatibility = JavaVersion.VERSION_11
             targetCompatibility = JavaVersion.VERSION_11
         }
