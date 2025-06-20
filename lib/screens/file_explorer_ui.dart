@@ -4,7 +4,10 @@ import 'file_explorer.dart';
 
 Widget buildFileExplorerUI(FileExplorerState state, BuildContext context) {
   return Scaffold(
+    backgroundColor: const Color(0xFF0F1115),
     appBar: AppBar(
+      backgroundColor: const Color(0xFF161B22),
+      elevation: 2,
       title: const Row(
         children: [
           Icon(Icons.terminal, color: Color(0xFF58A6FF)),
@@ -14,17 +17,18 @@ Widget buildFileExplorerUI(FileExplorerState state, BuildContext context) {
             style: TextStyle(
               fontFamily: 'Courier',
               fontWeight: FontWeight.bold,
+              color: Color(0xFFE6EDF3),
+              fontSize: 18,
             ),
           ),
         ],
       ),
-      backgroundColor: const Color(0xFF161B22),
     ),
     body: Column(
       children: [
         _buildDirectoryPicker(state),
-        _buildFileList(state),
         _buildAudioPlayer(state),
+        _buildFileList(state),
       ],
     ),
   );
@@ -34,9 +38,9 @@ Widget _buildDirectoryPicker(FileExplorerState state) {
   return Container(
     padding: const EdgeInsets.all(16),
     decoration: const BoxDecoration(
-      color: Color(0xFF21262D),
+      color: Color(0xFF1C2128),
       border: Border(
-        bottom: BorderSide(color: Color(0xFF30363D), width: 1),
+        bottom: BorderSide(color: Color(0xFF30363D)),
       ),
     ),
     child: Column(
@@ -56,30 +60,40 @@ Widget _buildDirectoryPicker(FileExplorerState state) {
             ),
           ],
         ),
-        const SizedBox(height: 8),
-        ElevatedButton.icon(
-          onPressed: state.pickFolder,
-          icon: const Icon(Icons.folder_open, size: 18),
-          label: const Text("Browse Directory"),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF238636),
-          ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            ElevatedButton.icon(
+              onPressed: state.pickFolder,
+              icon: const Icon(Icons.folder, size: 18),
+              label: const Text("Browse"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF238636),
+                foregroundColor: Colors.white,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              ),
+            ),
+          ],
         ),
         if (state.folderPath.isNotEmpty) ...[
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: const Color(0xFF0D1117),
-              borderRadius: BorderRadius.circular(4),
               border: Border.all(color: const Color(0xFF30363D)),
+              borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
-              "pwd: ${state.folderPath}",
+              "📁 ${state.folderPath}",
               style: const TextStyle(
                 fontFamily: 'Courier',
-                fontSize: 12,
-                color: Color(0xFF7D8590),
+                fontSize: 13,
+                color: Color(0xFF8B949E),
               ),
             ),
           ),
@@ -99,59 +113,61 @@ Widget _buildFileList(FileExplorerState state) {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.folder_open, size: 64, color: Color(0xFF30363D)),
+                  Icon(Icons.folder_off, size: 64, color: Color(0xFF30363D)),
                   SizedBox(height: 16),
                   Text(
                     "No directory selected",
                     style: TextStyle(
                       color: Color(0xFF7D8590),
                       fontFamily: 'Courier',
+                      fontSize: 14,
                     ),
                   ),
                 ],
               ),
             )
-          : ListView.builder(
+          : ListView.separated(
               itemCount: state.files.length,
+              separatorBuilder: (_, __) =>
+                  const Divider(color: Color(0xFF21262D)),
               itemBuilder: (context, index) {
                 final file = state.files[index];
                 final isDirectory = file is Directory;
                 final fileName = file.path.split('/').last;
-                return Container(
-                  margin:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: state.mp3FilePath == file.path
-                        ? const Color(0xFF238636).withAlpha(51)
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(4),
+                final isSelected = state.mp3FilePath == file.path;
+                return ListTile(
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                  tileColor: isSelected
+                      ? const Color(0xFF238636).withOpacity(0.1)
+                      : Colors.transparent,
+                  leading: Icon(
+                    isDirectory ? Icons.folder : Icons.music_note,
+                    color: isDirectory
+                        ? const Color(0xFF58A6FF)
+                        : const Color(0xFF7C3AED),
                   ),
-                  child: ListTile(
-                    leading: Icon(
-                      isDirectory ? Icons.folder : Icons.music_note,
-                      color: isDirectory
-                          ? const Color(0xFF58A6FF)
-                          : const Color(0xFF7C3AED),
+                  title: Text(
+                    fileName,
+                    style: const TextStyle(
+                      fontFamily: 'Courier',
+                      fontSize: 14,
+                      color: Color(0xFFE6EDF3),
                     ),
-                    title: Text(
-                      fileName,
-                      style: const TextStyle(
-                        fontFamily: 'Courier',
-                        fontSize: 14,
-                        color: Color(0xFFE6EDF3),
-                      ),
-                    ),
-                    subtitle: isDirectory
-                        ? const Text(
-                            "directory",
-                            style: TextStyle(
-                              color: Color(0xFF7D8590),
-                              fontSize: 12,
-                            ),
-                          )
-                        : null,
-                    onTap: () => state.onFileSelect(file),
                   ),
+                  subtitle: isDirectory
+                      ? const Text(
+                          "directory",
+                          style: TextStyle(
+                            color: Color(0xFF7D8590),
+                            fontSize: 12,
+                          ),
+                        )
+                      : null,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  onTap: () => state.onFileSelect(file),
                 );
               },
             ),
@@ -163,9 +179,9 @@ Widget _buildAudioPlayer(FileExplorerState state) {
   return Container(
     padding: const EdgeInsets.all(16),
     decoration: const BoxDecoration(
-      color: Color(0xFF21262D),
+      color: Color(0xFF1C2128),
       border: Border(
-        top: BorderSide(color: Color(0xFF30363D), width: 1),
+        top: BorderSide(color: Color(0xFF30363D)),
       ),
     ),
     child: Column(
@@ -185,107 +201,114 @@ Widget _buildAudioPlayer(FileExplorerState state) {
             ),
           ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 10),
         if (state.mp3FilePath != null) ...[
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: const Color(0xFF0D1117),
-              borderRadius: BorderRadius.circular(4),
+              borderRadius: BorderRadius.circular(6),
               border: Border.all(color: const Color(0xFF30363D)),
             ),
             child: Text(
-              "♪ ${state.mp3FilePath!.split('/').last}",
+              "🎵 ${state.mp3FilePath!.split('/').last}",
               style: const TextStyle(
                 fontFamily: 'Courier',
-                fontSize: 12,
+                fontSize: 13,
                 color: Color(0xFF7C3AED),
               ),
             ),
           ),
           const SizedBox(height: 12),
-          Column(
+          SliderTheme(
+            data: SliderTheme.of(state.context).copyWith(
+              activeTrackColor: const Color(0xFF238636),
+              inactiveTrackColor: const Color(0xFF30363D),
+              thumbColor: const Color(0xFF238636),
+              overlayColor: const Color(0xFF238636).withOpacity(0.2),
+              trackHeight: 3,
+            ),
+            child: Slider(
+              value: state.currentPosition.inMilliseconds.toDouble(),
+              max: state.totalDuration.inMilliseconds.toDouble(),
+              onChanged: (value) {
+                state.seekTo(Duration(milliseconds: value.toInt()));
+              },
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              SliderTheme(
-                data: SliderTheme.of(state.context).copyWith(
-                  activeTrackColor: const Color(0xFF238636),
-                  inactiveTrackColor: const Color(0xFF30363D),
-                  thumbColor: const Color(0xFF238636),
-                  overlayColor: const Color(0xFF238636).withAlpha(51),
-                ),
-                child: Slider(
-                  value: state.currentPosition.inMilliseconds.toDouble(),
-                  max: state.totalDuration.inMilliseconds.toDouble(),
-                  onChanged: (value) {
-                    state.seekTo(Duration(milliseconds: value.toInt()));
-                  },
+              Text(
+                state.formatDuration(state.currentPosition),
+                style: const TextStyle(
+                  color: Color(0xFF7D8590),
+                  fontFamily: 'Courier',
+                  fontSize: 12,
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      state.formatDuration(state.currentPosition),
-                      style: const TextStyle(
-                        color: Color(0xFF7D8590),
-                        fontFamily: 'Courier',
-                        fontSize: 12,
-                      ),
-                    ),
-                    Text(
-                      state.formatDuration(state.totalDuration),
-                      style: const TextStyle(
-                        color: Color(0xFF7D8590),
-                        fontFamily: 'Courier',
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
+              Text(
+                state.formatDuration(state.totalDuration),
+                style: const TextStyle(
+                  color: Color(0xFF7D8590),
+                  fontFamily: 'Courier',
+                  fontSize: 12,
                 ),
               ),
             ],
           ),
+          const SizedBox(height: 16),
         ],
-        const SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ElevatedButton.icon(
+            _controlButton(
+              label: "Open",
+              icon: Icons.file_open,
               onPressed: state.pickMP3File,
-              icon: const Icon(Icons.file_open, size: 18),
-              label: const Text("Open"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0969DA),
-              ),
+              color: const Color(0xFF0969DA),
             ),
             const SizedBox(width: 12),
-            ElevatedButton.icon(
+            _controlButton(
+              label: state.isPlaying ? "Pause" : "Play",
+              icon: state.isPlaying ? Icons.pause : Icons.play_arrow,
               onPressed: state.mp3FilePath != null
                   ? (state.isPlaying ? state.pauseMP3 : state.playMP3)
                   : null,
-              icon: Icon(
-                state.isPlaying ? Icons.pause : Icons.play_arrow,
-                size: 18,
-              ),
-              label: Text(state.isPlaying ? "Pause" : "Play"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF238636),
-              ),
+              color: const Color(0xFF238636),
             ),
             const SizedBox(width: 12),
-            ElevatedButton.icon(
+            _controlButton(
+              label: "Stop",
+              icon: Icons.stop,
               onPressed: state.mp3FilePath != null ? state.stopMP3 : null,
-              icon: const Icon(Icons.stop, size: 18),
-              label: const Text("Stop"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFDA3633),
-              ),
+              color: const Color(0xFFDA3633),
             ),
           ],
         ),
       ],
+    ),
+  );
+}
+
+Widget _controlButton({
+  required String label,
+  required IconData icon,
+  required VoidCallback? onPressed,
+  required Color color,
+}) {
+  return ElevatedButton.icon(
+    onPressed: onPressed,
+    icon: Icon(icon, size: 18),
+    label: Text(label),
+    style: ElevatedButton.styleFrom(
+      backgroundColor: color,
+      foregroundColor: Colors.white,
+      disabledBackgroundColor: const Color(0xFF2D333B),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(6),
+      ),
     ),
   );
 }
