@@ -34,7 +34,7 @@ Widget buildFileExplorerUI(FileExplorerState state, BuildContext context) {
   );
 }
 
-// help
+// hel
 Widget _buildDirectoryPicker(FileExplorerState state) {
   return Container(
     padding: const EdgeInsets.all(16),
