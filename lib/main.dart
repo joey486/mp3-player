@@ -5,7 +5,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -17,33 +17,32 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Terminal MP3 Player',
       theme: ThemeData(
-        // Linux terminal-inspired dark theme
         brightness: Brightness.dark,
         primarySwatch: Colors.green,
-        scaffoldBackgroundColor: Color(0xFF0D1117),
-        appBarTheme: AppBarTheme(
+        scaffoldBackgroundColor: const Color(0xFF0D1117),
+        appBarTheme: const AppBarTheme(
           backgroundColor: Color(0xFF161B22),
           foregroundColor: Color(0xFF58A6FF),
           elevation: 0,
         ),
-        cardTheme: CardThemeData(
+        cardTheme: const CardThemeData(
           color: Color(0xFF21262D),
           elevation: 2,
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: Color(0xFF238636),
+            backgroundColor: const Color(0xFF238636),
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(6),
             ),
           ),
         ),
-        listTileTheme: ListTileThemeData(
+        listTileTheme: const ListTileThemeData(
           iconColor: Color(0xFF58A6FF),
           textColor: Color(0xFFE6EDF3),
         ),
-        textTheme: TextTheme(
+        textTheme: const TextTheme(
           bodyLarge: TextStyle(
             color: Color(0xFFE6EDF3),
             fontFamily: 'Courier',
@@ -53,11 +52,11 @@ class MyApp extends StatelessWidget {
             fontFamily: 'Courier',
           ),
         ),
-        iconTheme: IconThemeData(
+        iconTheme: const IconThemeData(
           color: Color(0xFF58A6FF),
         ),
       ),
-      home: FileExplorer(),
+      home: const FileExplorer(),
     );
   }
 }
@@ -66,10 +65,10 @@ class FileExplorer extends StatefulWidget {
   const FileExplorer({super.key});
 
   @override
-  _FileExplorerState createState() => _FileExplorerState();
+  FileExplorerState createState() => FileExplorerState();
 }
 
-class _FileExplorerState extends State<FileExplorer> {
+class FileExplorerState extends State<FileExplorer> {
   List<FileSystemEntity> files = [];
   String folderPath = "";
   String? mp3FilePath;
@@ -87,43 +86,42 @@ class _FileExplorerState extends State<FileExplorer> {
   }
 
   Future<void> checkPermissions() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool? hasAskedBefore = prefs.getBool('permissions_asked');
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final bool? hasAskedBefore = prefs.getBool('permissions_asked');
 
     if (hasAskedBefore == null || !hasAskedBefore) {
       // First time, mark as asked and grant permissions (handled by file_picker)
       await prefs.setBool('permissions_asked', true);
     }
 
-    // For modern Android, file_picker handles permissions automatically
     setState(() {
       permissionsGranted = true;
     });
-    print("✓ File access ready");
+    debugPrint("✓ File access ready");
   }
 
   Future<void> requestPermissions() async {
-    // Modern file_picker handles permissions automatically
     setState(() {
       permissionsGranted = true;
     });
-    print("✓ File access ready");
+    debugPrint("✓ File access ready");
   }
 
   void showPermissionDialog() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Color(0xFF21262D),
-        title: Text('File Access', style: TextStyle(color: Color(0xFFE6EDF3))),
-        content: Text(
+        backgroundColor: const Color(0xFF21262D),
+        title: const Text('File Access',
+            style: TextStyle(color: Color(0xFFE6EDF3))),
+        content: const Text(
           'This app uses file picker to access MP3 files. File access is handled automatically when you select files.',
           style: TextStyle(color: Color(0xFFE6EDF3)),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text('OK', style: TextStyle(color: Color(0xFF58A6FF))),
+            child: const Text('OK', style: TextStyle(color: Color(0xFF58A6FF))),
           ),
         ],
       ),
@@ -152,7 +150,8 @@ class _FileExplorerState extends State<FileExplorer> {
 
   Future<void> pickFolder() async {
     try {
-      String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
+      final String? selectedDirectory =
+          await FilePicker.platform.getDirectoryPath();
 
       if (selectedDirectory != null) {
         setState(() {
@@ -164,14 +163,14 @@ class _FileExplorerState extends State<FileExplorer> {
         });
       }
     } catch (e) {
-      print("Error selecting folder: $e");
+      debugPrint("Error selecting folder: $e");
       showPermissionDialog();
     }
   }
 
   Future<void> pickMP3File() async {
     try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
+      final FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.audio,
         allowedExtensions: ['mp3'],
       );
@@ -180,10 +179,10 @@ class _FileExplorerState extends State<FileExplorer> {
         setState(() {
           mp3FilePath = result.files.single.path;
         });
-        print("♪ Selected MP3 File: $mp3FilePath");
+        debugPrint("♪ Selected MP3 File: $mp3FilePath");
       }
     } catch (e) {
-      print("Error selecting MP3 file: $e");
+      debugPrint("Error selecting MP3 file: $e");
       showPermissionDialog();
     }
   }
@@ -192,7 +191,7 @@ class _FileExplorerState extends State<FileExplorer> {
     if (mp3FilePath != null) {
       await _audioPlayer.play(DeviceFileSource(mp3FilePath!));
     } else {
-      print("✗ No file selected");
+      debugPrint("✗ No file selected");
     }
   }
 
@@ -228,8 +227,8 @@ class _FileExplorerState extends State<FileExplorer> {
 
   String formatDuration(Duration duration) {
     String twoDigits(int n) => n.toString().padLeft(2, "0");
-    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
-    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+    final twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+    final twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
     return "${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
   }
 
@@ -243,25 +242,27 @@ class _FileExplorerState extends State<FileExplorer> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
+        title: const Row(
           children: [
             Icon(Icons.terminal, color: Color(0xFF58A6FF)),
             SizedBox(width: 8),
-            Text("Terminal MP3 Player",
-                style: TextStyle(
-                  fontFamily: 'Courier',
-                  fontWeight: FontWeight.bold,
-                )),
+            Text(
+              "Terminal MP3 Player",
+              style: TextStyle(
+                fontFamily: 'Courier',
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ],
         ),
-        backgroundColor: Color(0xFF161B22),
+        backgroundColor: const Color(0xFF161B22),
       ),
       body: Column(
         children: [
           // Header section with controls
           Container(
-            padding: EdgeInsets.all(16),
-            decoration: BoxDecoration(
+            padding: const EdgeInsets.all(16),
+            decoration: const BoxDecoration(
               color: Color(0xFF21262D),
               border: Border(
                 bottom: BorderSide(color: Color(0xFF30363D), width: 1),
@@ -270,39 +271,41 @@ class _FileExplorerState extends State<FileExplorer> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+                const Row(
                   children: [
                     Icon(Icons.folder_open, color: Color(0xFF58A6FF)),
                     SizedBox(width: 8),
-                    Text("Directory Browser",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFFE6EDF3),
-                        )),
+                    Text(
+                      "Directory Browser",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFFE6EDF3),
+                      ),
+                    ),
                   ],
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 ElevatedButton.icon(
                   onPressed: pickFolder,
-                  icon: Icon(Icons.folder_open, size: 18),
-                  label: Text("Browse Directory"),
+                  icon: const Icon(Icons.folder_open, size: 18),
+                  label: const Text("Browse Directory"),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF238636),
+                    backgroundColor: const Color(0xFF238636),
                   ),
                 ),
                 if (folderPath.isNotEmpty) ...[
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Container(
-                    padding: EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Color(0xFF0D1117),
+                      color: const Color(0xFF0D1117),
                       borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: Color(0xFF30363D)),
+                      border: Border.all(color: const Color(0xFF30363D)),
                     ),
                     child: Text(
                       "pwd: $folderPath",
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontFamily: 'Courier',
                         fontSize: 12,
                         color: Color(0xFF7D8590),
@@ -318,9 +321,9 @@ class _FileExplorerState extends State<FileExplorer> {
           Expanded(
             flex: 2,
             child: Container(
-              color: Color(0xFF0D1117),
+              color: const Color(0xFF0D1117),
               child: files.isEmpty
-                  ? Center(
+                  ? const Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -345,11 +348,11 @@ class _FileExplorerState extends State<FileExplorer> {
                         final fileName = file.path.split('/').last;
 
                         return Container(
-                          margin:
-                              EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          margin: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
                             color: mp3FilePath == file.path
-                                ? Color(0xFF238636).withOpacity(0.2)
+                                ? const Color(0xFF238636).withAlpha(51)
                                 : Colors.transparent,
                             borderRadius: BorderRadius.circular(4),
                           ),
@@ -357,23 +360,25 @@ class _FileExplorerState extends State<FileExplorer> {
                             leading: Icon(
                               isDirectory ? Icons.folder : Icons.music_note,
                               color: isDirectory
-                                  ? Color(0xFF58A6FF)
-                                  : Color(0xFF7C3AED),
+                                  ? const Color(0xFF58A6FF)
+                                  : const Color(0xFF7C3AED),
                             ),
                             title: Text(
                               fileName,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontFamily: 'Courier',
                                 fontSize: 14,
                                 color: Color(0xFFE6EDF3),
                               ),
                             ),
                             subtitle: isDirectory
-                                ? Text("directory",
+                                ? const Text(
+                                    "directory",
                                     style: TextStyle(
                                       color: Color(0xFF7D8590),
                                       fontSize: 12,
-                                    ))
+                                    ),
+                                  )
                                 : null,
                             onTap: () => onFileSelect(file),
                           ),
@@ -385,8 +390,8 @@ class _FileExplorerState extends State<FileExplorer> {
 
           // MP3 Player section
           Container(
-            padding: EdgeInsets.all(16),
-            decoration: BoxDecoration(
+            padding: const EdgeInsets.all(16),
+            decoration: const BoxDecoration(
               color: Color(0xFF21262D),
               border: Border(
                 top: BorderSide(color: Color(0xFF30363D), width: 1),
@@ -395,7 +400,7 @@ class _FileExplorerState extends State<FileExplorer> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+                const Row(
                   children: [
                     Icon(Icons.music_note, color: Color(0xFF7C3AED)),
                     SizedBox(width: 8),
@@ -409,36 +414,36 @@ class _FileExplorerState extends State<FileExplorer> {
                     ),
                   ],
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
 
                 if (mp3FilePath != null) ...[
                   Container(
-                    padding: EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Color(0xFF0D1117),
+                      color: const Color(0xFF0D1117),
                       borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: Color(0xFF30363D)),
+                      border: Border.all(color: const Color(0xFF30363D)),
                     ),
                     child: Text(
                       "♪ ${mp3FilePath!.split('/').last}",
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontFamily: 'Courier',
                         fontSize: 12,
                         color: Color(0xFF7C3AED),
                       ),
                     ),
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
 
                   // Progress bar
                   Column(
                     children: [
                       SliderTheme(
                         data: SliderTheme.of(context).copyWith(
-                          activeTrackColor: Color(0xFF238636),
-                          inactiveTrackColor: Color(0xFF30363D),
-                          thumbColor: Color(0xFF238636),
-                          overlayColor: Color(0xFF238636).withAlpha(32),
+                          activeTrackColor: const Color(0xFF238636),
+                          inactiveTrackColor: const Color(0xFF30363D),
+                          thumbColor: const Color(0xFF238636),
+                          overlayColor: const Color(0xFF238636).withAlpha(51),
                         ),
                         child: Slider(
                           value: currentPosition.inMilliseconds.toDouble(),
@@ -449,13 +454,13 @@ class _FileExplorerState extends State<FileExplorer> {
                         ),
                       ),
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
                               formatDuration(currentPosition),
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Color(0xFF7D8590),
                                 fontFamily: 'Courier',
                                 fontSize: 12,
@@ -463,7 +468,7 @@ class _FileExplorerState extends State<FileExplorer> {
                             ),
                             Text(
                               formatDuration(totalDuration),
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Color(0xFF7D8590),
                                 fontFamily: 'Courier',
                                 fontSize: 12,
@@ -476,7 +481,7 @@ class _FileExplorerState extends State<FileExplorer> {
                   ),
                 ],
 
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // Control buttons
                 Row(
@@ -484,13 +489,13 @@ class _FileExplorerState extends State<FileExplorer> {
                   children: [
                     ElevatedButton.icon(
                       onPressed: pickMP3File,
-                      icon: Icon(Icons.file_open, size: 18),
-                      label: Text("Open"),
+                      icon: const Icon(Icons.file_open, size: 18),
+                      label: const Text("Open"),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF0969DA),
+                        backgroundColor: const Color(0xFF0969DA),
                       ),
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     ElevatedButton.icon(
                       onPressed: mp3FilePath != null
                           ? (isPlaying ? pauseMP3 : playMP3)
@@ -501,16 +506,16 @@ class _FileExplorerState extends State<FileExplorer> {
                       ),
                       label: Text(isPlaying ? "Pause" : "Play"),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF238636),
+                        backgroundColor: const Color(0xFF238636),
                       ),
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     ElevatedButton.icon(
                       onPressed: mp3FilePath != null ? stopMP3 : null,
-                      icon: Icon(Icons.stop, size: 18),
-                      label: Text("Stop"),
+                      icon: const Icon(Icons.stop, size: 18),
+                      label: const Text("Stop"),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFFDA3633),
+                        backgroundColor: const Color(0xFFDA3633),
                       ),
                     ),
                   ],
