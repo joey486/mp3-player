@@ -126,7 +126,6 @@ Widget _buildFileList(FileExplorerState state) {
                 ],
               ),
             )
-            //
           : ListView.separated(
               itemCount: state.files.length,
               separatorBuilder: (_, __) =>
