@@ -34,7 +34,6 @@ Widget buildFileExplorerUI(FileExplorerState state, BuildContext context) {
   );
 }
 
-// her
 Widget _buildDirectoryPicker(FileExplorerState state) {
   return Container(
     padding: const EdgeInsets.all(16),
@@ -127,6 +126,7 @@ Widget _buildFileList(FileExplorerState state) {
                 ],
               ),
             )
+            //
           : ListView.separated(
               itemCount: state.files.length,
               separatorBuilder: (_, __) =>
